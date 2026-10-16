@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "raylib.h"
 
 //------------------------------------------------------------------------------------
@@ -7,13 +9,30 @@ int main(void)
 {
     // Initialization
     //--------------------------------------------------------------------------------------
-    const int screenWidth = 800;
-    const int screenHeight = 450;
 
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+    const int screenWidth = 1680;
+    const int screenHeight = 945;
 
+    InitWindow(screenWidth, screenHeight, "GTAIV Loading Creator");
+    ToggleFullscreen();
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
+
+    Image backgroundImage = LoadImage("./Backgrounds/1_1.png");
+    if (!IsImageValid(backgroundImage)) {
+        TraceLog(LOG_ERROR, "Could not load background image");
+        return 1;
+    }
+
+    ImageResize(&backgroundImage, screenWidth, screenHeight);
+
+    Texture2D backgroundTexture = LoadTextureFromImage(backgroundImage);
+    if (!IsTextureValid(backgroundTexture)) {
+        TraceLog(LOG_ERROR, "Could not load background texture");
+        return 1;
+    }
+
+    float alphaValue{ 1.0f };
 
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -22,6 +41,11 @@ int main(void)
         //----------------------------------------------------------------------------------
         // TODO: Update your variables here
         //----------------------------------------------------------------------------------
+        if (alphaValue <= 0.0f) {
+            alphaValue = 1.0f; //ab hier ist tot, weil alles schwarz ist.
+        } else {
+            alphaValue -= 0.01f;
+        }
 
         // Draw
         //----------------------------------------------------------------------------------
@@ -29,7 +53,8 @@ int main(void)
 
         ClearBackground(RAYWHITE);
 
-        DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
+        DrawTexture(backgroundTexture, 0, 0, Fade(WHITE, alphaValue));
+
 
         EndDrawing();
         //----------------------------------------------------------------------------------
@@ -38,6 +63,8 @@ int main(void)
     // De-Initialization
     //--------------------------------------------------------------------------------------
     CloseWindow();        // Close window and OpenGL context
+    UnloadTexture(backgroundTexture);
+    UnloadImage(backgroundImage);
     //--------------------------------------------------------------------------------------
 
     return 0;
